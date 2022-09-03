@@ -11,11 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# [START cloudbuild_maven]
+
+# [START cloudbuild_run_example_builddeploy]
+
 steps:
- - name: 'gcr.io/cloud-builders/docker'
-   args: [ 'build', '-t', 'us-central1-docker.pkg.dev/gcp-project-JavaMicroservicePoc/gcp-project-docker-repo/gcp-project:0.0.1', '.' ]
- - name: 'gcr.io/cloud-builders/docker'
-   args: [ 'push', 'us-central1-docker.pkg.dev/gcp-project-JavaMicroservicePoc/gcp-project-docker-repo/gcp-project:0.0.1' ]
-images: ['us-central1-docker.pkg.dev/gcp-project-JavaMicroservicePoc/gcp-project-docker-repo/gcp-project:0.0.1']
-# [END cloudbuild_maven]
+# Build the container image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/myimage', '.']
+# Push the container image to Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/myimage']
+# Deploy container image to Cloud Run
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['run', 'deploy', 'myservice', '--image', 'us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/myimage', '--region', 'us-central1', '--platform', 'managed', '--allow-unauthenticated']
+images:
+- us-central1-docker.pkg.dev/$PROJECT_ID/$_REPO_NAME/myimage
+# [END cloudbuild_run_example_builddeploy]
